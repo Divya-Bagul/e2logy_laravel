@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\EmployeeValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateEmployeeRequest extends FormRequest
 {
+    use EmployeeValidationRules;
+
     public function authorize(): bool
     {
         return true;
@@ -14,20 +16,11 @@ class UpdateEmployeeRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'full_name' => ['required', 'string', 'max:255'],
-            'employee_code' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('employees', 'employee_code')->ignore($this->route('employee')),
-            ],
-            'department_id' => ['required', 'exists:departments,id'],
-            'manager_id' => ['required', 'exists:managers,id'],
-            'joining_date' => ['required', 'date'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'address' => ['nullable', 'string'],
-        ];
+        return $this->employeeRules($this->route('employee'));
+    }
+
+    public function messages(): array
+    {
+        return $this->employeeMessages();
     }
 }

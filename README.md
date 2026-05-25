@@ -166,16 +166,16 @@ routes/web.php
 
 ## Validation Rules
 
-| Field           | Rules                                              |
-| --------------- | -------------------------------------------------- |
-| `full_name`     | Required, string, max 255                          |
-| `employee_code` | Required, unique (on create), max 50               |
-| `department_id` | Required, exists in `departments`                  |
-| `manager_id`    | Required, exists in `managers`                     |
-| `joining_date`  | Required, valid date                               |
-| `email`         | Optional, valid email                              |
-| `phone`         | Optional, string, max 30                           |
-| `address`       | Optional, string                                   |
+| Field           | Rules                                                                 |
+| --------------- | --------------------------------------------------------------------- |
+| `full_name`     | Required, 2–15 characters                                             |
+| `employee_code` | Required, 1–6 alphanumeric characters, unique among active employees (soft-deleted rows ignored) |
+| `email`         | Required, valid email format (regex), unique among active employees |
+| `phone`         | Required, exactly 10 digits, unique among active employees |
+| `department_id` | Required, exists in `departments`                                     |
+| `manager_id`    | Required, exists in `managers`                                        |
+| `joining_date`  | Required, valid date                                                  |
+| `address`       | Required, max 500 characters                                          |
 
 ## Useful Commands
 

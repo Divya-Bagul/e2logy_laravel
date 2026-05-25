@@ -7,8 +7,10 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Manager;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -46,7 +48,11 @@ class EmployeeController extends Controller
 
     public function store(StoreEmployeeRequest $request): RedirectResponse
     {
-        Employee::create($request->validated());
+        try {
+            Employee::create($request->validated());
+        } catch (QueryException $e) {
+            $this->throwIfDuplicateEmployeeField($e);
+        }
 
         return redirect()
             ->route('employees.index')
@@ -55,7 +61,11 @@ class EmployeeController extends Controller
 
     public function update(UpdateEmployeeRequest $request, Employee $employee): RedirectResponse
     {
-        $employee->update($request->validated());
+        try {
+            $employee->update($request->validated());
+        } catch (QueryException $e) {
+            $this->throwIfDuplicateEmployeeField($e);
+        }
 
         return redirect()
             ->route('employees.index')
@@ -69,5 +79,33 @@ class EmployeeController extends Controller
         return redirect()
             ->route('employees.index', $request->only(['search', 'department_id', 'manager_id', 'joining_from', 'joining_to', 'page']))
             ->with('success', 'Employee deleted successfully.');
+    }
+
+    private function throwIfDuplicateEmployeeField(QueryException $e): void
+    {
+        if (! isset($e->errorInfo[1]) || (int) $e->errorInfo[1] !== 1062) {
+            throw $e;
+        }
+
+        $message = $e->getMessage();
+        $errors = [];
+
+        if (str_contains($message, 'employee_code')) {
+            $errors['employee_code'] = 'This employee code is already used by another active employee.';
+        }
+
+        if (str_contains($message, 'email')) {
+            $errors['email'] = 'This email address is already used by another active employee.';
+        }
+
+        if (str_contains($message, 'phone')) {
+            $errors['phone'] = 'This phone number is already used by another active employee.';
+        }
+
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        throw $e;
     }
 }

@@ -1,7 +1,7 @@
 <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered employee-modal-dialog">
         <div class="modal-content employee-modal-content">
-            <form id="employeeForm" method="POST" action="{{ route('employees.store') }}" class="employee-modal-form">
+            <form id="employeeForm" method="POST" action="{{ route('employees.store') }}" class="employee-modal-form" novalidate>
                 @csrf
                 <input type="hidden" id="employee_id" name="employee_id" value="{{ old('employee_id') }}">
                 <div id="methodField"></div>
@@ -47,7 +47,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}">
+                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}">
                         @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
